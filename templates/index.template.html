@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{SITE_NAME}} &mdash; {{TAGLINE}}</title>
+  <meta name="description" content="{{INTRO}}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="hero__bar">
+        <span class="wordmark">{{SITE_NAME}}</span>
+        <span class="hero__stamp">last rebuilt <time>{{BUILD_DATE}}</time></span>
+      </div>
+
+      <div class="hero__lead">
+        <p class="eyebrow">Australian National Electricity Market</p>
+        <h1>{{TAGLINE}}</h1>
+        <p class="hero__intro">{{INTRO}}</p>
+      </div>
+
+      <!-- Signature: a 5-minute dispatch price trace that draws on load and spikes to the cap -->
+      <figure class="trace" aria-label="Illustrative 5-minute dispatch price trace ending in a spike to the market price cap">
+        <svg viewBox="0 0 1200 220" preserveAspectRatio="none" role="img">
+          <g class="trace__grid">
+            <line x1="0" y1="180" x2="1200" y2="180" />
+            <line x1="0" y1="120" x2="1200" y2="120" />
+            <line x1="0" y1="60"  x2="1200" y2="60" />
+          </g>
+          <path class="trace__line" d="M0,168 L40,170 L80,164 L120,172 L160,160 L200,166 L240,158 L280,170 L320,162 L360,156 L400,168 L440,150 L480,164 L520,158 L560,166 L600,152 L640,160 L680,170 L720,156 L760,168 L800,162 L840,158 L880,166 L900,160 L915,18 L930,160 L960,164 L1000,158 L1040,168 L1080,160 L1120,166 L1160,162 L1200,168" />
+          <circle class="trace__spike" cx="915" cy="18" r="5" />
+        </svg>
+        <figcaption>
+          <span class="trace__label">RRP $/MWh</span>
+          <span class="trace__cap">spike &rarr; price cap $16,600</span>
+        </figcaption>
+      </figure>
+    </header>
+
+    <section class="grid" aria-label="Dashboards">
+      <div class="grid__head">
+        <h2>Dashboards</h2>
+        <span class="grid__count">{{DASHBOARD_COUNT}} live</span>
+      </div>
+      <div class="cards">
+{{DASHBOARD_CARDS}}
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p class="foot__note">{{FOOTER_NOTE}}</p>
+      <p class="foot__meta">{{AUTHOR}} &middot; &copy; {{YEAR}} &middot; rebuilt daily from NEMweb</p>
+    </footer>
+  </main>
+</body>
+</html>

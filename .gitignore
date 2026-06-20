@@ -1,0 +1,18 @@
+# build output (regenerated every run; not committed)
+dist/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# data caches (don't commit large NEMweb pulls)
+data/
+*.parquet
+*.zip
+
+# os / editor
+.DS_Store
+.vscode/

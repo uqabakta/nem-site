@@ -1,0 +1,11 @@
+# Core build shell uses only the standard library.
+# These are for the example generator and any dashboards you add.
+plotly>=5.22
+pandas>=2.2
+numpy>=1.26
+
+# Add what your real NEMweb pipeline needs, e.g.:
+# nemosis>=3.7
+# requests>=2.32
+# lightgbm>=4.3
+# pyarrow>=16.0

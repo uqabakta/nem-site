@@ -1,0 +1,62 @@
+name: Build and deploy site
+
+# Runs daily and on every push to main. Also runnable on-demand from the
+# Actions tab (workflow_dispatch).
+on:
+  schedule:
+    # 20:00 UTC == 06:00 the next day in Brisbane (AEST, UTC+10, no daylight saving).
+    # Runs each morning so the build picks up the previous day's complete NEMweb data.
+    - cron: "0 20 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Let the deploy publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If a new run starts, cancel an in-progress one for the same ref.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build site
+        # CI=true is set automatically by GitHub Actions; generators can read it
+        # to skip any corporate-proxy/cert handling that's only needed on the work machine.
+        run: python build.py
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

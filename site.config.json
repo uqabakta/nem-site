@@ -1,0 +1,39 @@
+{
+  "site": {
+    "name": "NEM Analytics",
+    "tagline": "Open analysis of Australia's National Electricity Market",
+    "intro": "Public-data dashboards on spot prices, price spikes, negative pricing, battery performance and weather-driven demand across the NEM. Rebuilt daily from AEMO NEMweb.",
+    "author": "Your Name",
+    "footer_note": "Built on public AEMO NEMweb data. Not affiliated with AEMO or any market participant.",
+    "custom_domain": ""
+  },
+  "dashboards": [
+    {
+      "slug": "bess-performance_monthly",
+      "title": "BESS Performance in NEM (long term)",
+      "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
+      "tag": "NEM BESS fleet",
+      "type": "static",
+      "source": "dashboards/static/bess_dashboard.html",
+      "cadence": "static"
+    },
+    {
+      "slug": "bess-performance_daily",
+      "title": "BESS Performance in NEM (last 30 days)",
+      "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
+      "tag": "NEM BESS fleet",
+      "type": "static",
+      "source": "dashboards/static/bess_profile_dashboard.html",
+      "cadence": "static"
+    },
+    {
+      "slug": "negative-price",
+      "title": "Negative Price Analysis",
+      "blurb": "Duration and depth of sub-zero spot prices across the market.",
+      "tag": "Duration curve",
+      "type": "static",
+      "source": "dashboards/static/negative_price_demo.html",
+      "cadence": "static"
+    }
+  ]
+}
