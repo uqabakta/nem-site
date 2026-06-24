@@ -9,12 +9,21 @@
   },
   "dashboards": [
     {
+      "slug": "NEM_Analytics",
+      "title": "Price Trend ",
+      "blurb": "Price Changes across the NEM.",
+      "tag": "NEM Price Demand",
+      "type": "static",
+      "source": "dashboards/static/index.html",
+      "cadence": "static"
+    },
+    {
       "slug": "bess-performance_monthly",
       "title": "BESS Performance in NEM (long term)",
       "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
       "tag": "NEM BESS fleet",
       "type": "static",
-      "source": "dashboards/static/bess_dashboard.html",
+      "source": "dashboards/static/bess.html",
       "cadence": "static"
     },
     {
@@ -23,16 +32,43 @@
       "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
       "tag": "NEM BESS fleet",
       "type": "static",
-      "source": "dashboards/static/bess_profile_dashboard.html",
+      "source": "dashboards/static/bess-profiles.html",
       "cadence": "static"
     },
     {
       "slug": "negative-price",
       "title": "Negative Price Analysis",
       "blurb": "Duration and depth of sub-zero spot prices across the market.",
-      "tag": "Duration curve",
+      "tag": "Negative Prices",
       "type": "static",
-      "source": "dashboards/static/negative_price_demo.html",
+      "source": "dashboards/static/negatives.html",
+      "cadence": "static"
+    },
+    {
+      "slug": "spike-price",
+      "title": "Price Spike Analysis",
+      "blurb": "Duration and depth of +300 spot prices across the market.",
+      "tag": "Price Spikes",
+      "type": "static",
+      "source": "dashboards/static/spikes.html",
+      "cadence": "static"
+    },
+    {
+      "slug": "NEM_Generation",
+      "title": "Generation Analysis",
+      "blurb": "Generation type in each region",
+      "tag": "Generation",
+      "type": "static",
+      "source": "dashboards/static/generation.html",
+      "cadence": "static"
+    },
+    {
+      "slug": "Market_shift",
+      "title": "Market Shift in NEM",
+      "blurb": "Market shift",
+      "tag": "Geberation type impact of duck curve",
+      "type": "static",
+      "source": "dashboards/static/market-shift.html",
       "cadence": "static"
     }
   ]
