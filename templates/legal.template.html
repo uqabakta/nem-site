@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{PAGE_TITLE}} &mdash; {{SITE_NAME}}</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2.25" y="2.25" width="35.5" height="35.5" rx="9" stroke="currentColor" stroke-width="2.2"/>
+            <path d="M9 25.5L13.5 23.5L17.5 26.5L22 14.5L26 21.5L31 17.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="22" cy="14.5" r="2.4" class="brand__dot"/>
+          </svg>
+        </span>
+        <span class="brand__word">{{SITE_NAME}}</span>
+      </a>
+      <div class="nav__links">
+        <a href="index.html#dashboards">Dashboards</a>
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="legal">
+      <p class="eyebrow">{{PAGE_TITLE}}</p>
+      {{BODY_CONTENT}}
+    </section>
+  </main>
+
+  <footer class="foot" id="contact">
+    <div class="foot__inner{{FOOT_GRID_CLASS}}">
+      <div class="foot__col foot__col--brand">
+        <span class="brand__word brand__word--foot">{{SITE_NAME}}</span>
+        <p class="foot__note">{{FOOTER_NOTE}}</p>
+      </div>
+      <div class="foot__col">
+        <h4>Site</h4>
+        <a href="index.html#dashboards">Dashboards</a>
+        <a href="index.html#approach">Approach</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </div>
+{{CONTACT_COLUMN_HTML}}
+    </div>
+    <div class="foot__bar">
+      <p>{{AUTHOR}} &middot; &copy; {{YEAR}} &middot; rebuilt daily from NEMweb</p>
+    </div>
+  </footer>
+
+</body>
+</html>

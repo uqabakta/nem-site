@@ -1,75 +1,19 @@
 {
   "site": {
-    "name": "NEM Analytics",
+    "name": "Ergodic Analytics",
     "tagline": "Open analysis of Australia's National Electricity Market",
     "intro": "Public-data dashboards on spot prices, price spikes, negative pricing, battery performance and weather-driven demand across the NEM. Rebuilt daily from AEMO NEMweb.",
-    "author": "Your Name",
+    "author": "Ardeshir Baktash",
     "footer_note": "Built on public AEMO NEMweb data. Not affiliated with AEMO or any market participant.",
-    "custom_domain": ""
+    "custom_domain": "ergodicanalytics.com.au"
   },
   "dashboards": [
-    {
-      "slug": "NEM_Analytics",
-      "title": "Price Trend ",
-      "blurb": "Price Changes across the NEM.",
-      "tag": "NEM Price Demand",
-      "type": "static",
-      "source": "dashboards/static/index.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "bess-performance_monthly",
-      "title": "BESS Performance in NEM (long term)",
-      "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
-      "tag": "NEM BESS fleet",
-      "type": "static",
-      "source": "dashboards/static/bess.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "bess-performance_daily",
-      "title": "BESS Performance in NEM (last 30 days)",
-      "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.",
-      "tag": "NEM BESS fleet",
-      "type": "static",
-      "source": "dashboards/static/bess-profiles.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "negative-price",
-      "title": "Negative Price Analysis",
-      "blurb": "Duration and depth of sub-zero spot prices across the market.",
-      "tag": "Negative Prices",
-      "type": "static",
-      "source": "dashboards/static/negatives.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "spike-price",
-      "title": "Price Spike Analysis",
-      "blurb": "Duration and depth of +300 spot prices across the market.",
-      "tag": "Price Spikes",
-      "type": "static",
-      "source": "dashboards/static/spikes.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "NEM_Generation",
-      "title": "Generation Analysis",
-      "blurb": "Generation type in each region",
-      "tag": "Generation",
-      "type": "static",
-      "source": "dashboards/static/generation.html",
-      "cadence": "static"
-    },
-    {
-      "slug": "Market_shift",
-      "title": "Market Shift in NEM",
-      "blurb": "Market shift",
-      "tag": "Geberation type impact of duck curve",
-      "type": "static",
-      "source": "dashboards/static/market-shift.html",
-      "cadence": "static"
-    }
+    { "slug": "index", "title": "Price Trend", "blurb": "Price changes across the NEM.", "tag": "NEM Price Demand", "type": "static", "source": "dashboards/static/index.html", "cadence": "static" },
+    { "slug": "market-shift", "title": "Market Shift in NEM", "blurb": "Structural shifts in price formation as generation mix changes.", "tag": "Generation type impact of duck curve", "type": "static", "source": "dashboards/static/market-shift.html", "cadence": "static" },
+    { "slug": "bess", "title": "BESS Performance in NEM", "blurb": "Dispatch behaviour and performance profile of grid-scale batteries across the NEM.", "tag": "NEM BESS fleet", "type": "static", "source": "dashboards/static/bess.html", "cadence": "static" },
+    { "slug": "optimizer", "title": "Dispatch Optimizer", "blurb": "Optimal charge/discharge scheduling for grid-scale batteries against forecast NEM prices.", "tag": "NEM BESS fleet", "type": "static", "source": "dashboards/static/optimizer.html", "cadence": "static" },
+    { "slug": "wind", "title": "Wind Performance in NEM", "blurb": "Dispatch behaviour and performance profile of grid-scale wind farms across the NEM.", "tag": "NEM Wind fleet", "type": "static", "source": "dashboards/static/wind.html", "cadence": "static" },
+    { "slug": "solar", "title": "Solar Performance in NEM", "blurb": "Dispatch behaviour and performance profile of grid-scale solar farms across the NEM.", "tag": "NEM Solar fleet", "type": "static", "source": "dashboards/static/solar.html", "cadence": "static" },
+    { "slug": "curtailment", "title": "NEM VRE Curtailment", "blurb": "Wind & solar economic curtailment.", "tag": "NEM VRE Curtailment", "type": "static", "source": "dashboards/static/curtailment.html", "cadence": "static" }
   ]
 }

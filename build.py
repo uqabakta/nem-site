@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build the static site into ./dist.
-
-Reads site.config.json, then for each dashboard:
-  - type "generated": imports the named module and calls its build(out_path)
-  - type "static":    copies the source HTML into the site as-is
-
-Finally renders the landing page from templates/index.template.html and copies
-assets/. Run locally with `python build.py`; the GitHub Action runs the same
-command every day and deploys the result to GitHub Pages.
-
-Designed to be dependency-light: only the standard library is needed to build
-the site shell. Individual generators pull in whatever they need
-(plotly/pandas/etc) via requirements.txt.
-"""
+"""Build the static site into ./dist. See README.md for full docs."""
 
 from __future__ import annotations
 
@@ -32,7 +18,6 @@ DIST = ROOT / "dist"
 CONFIG = ROOT / "site.config.json"
 TEMPLATE = ROOT / "templates" / "index.template.html"
 ASSETS = ROOT / "assets"
-
 BRISBANE = ZoneInfo("Australia/Brisbane")
 
 
@@ -52,32 +37,77 @@ def copy_assets() -> None:
         shutil.copytree(ASSETS, DIST / "assets")
 
 
-def inject_back_nav(out_path: Path, site_name: str) -> None:
-    """Insert a 'back to dashboards' bar at the top of a dashboard page.
+def humanize_slug(slug: str) -> str:
+    """Turn a slug into a short nav label, e.g. 'market-shift' -> 'Market Shift'."""
+    special = {"index": "Overview", "bess": "BESS", "vre-curtailment": "VRE Curtailment"}
+    if slug in special:
+        return special[slug]
+    return slug.replace("-", " ").replace("_", " ").title()
 
-    Each dashboard is a standalone HTML page (your Plotly export), so on its own
-    it has no link home. We splice a slim sticky bar in right after <body>,
-    styled to match the landing page (same fonts, paper background, accent on
-    hover). Done here in the build so you never edit individual dashboards and it
-    applies automatically to every dashboard, now and later.
+
+def inject_dashboard_utility_bar(
+    out_path: Path, site_name: str, contact_email: str, all_dashboards: list[dict], current_slug: str
+) -> None:
+    """Insert a slim, self-contained nav bar at the top of a dashboard page.
+
+    This bar is generated fresh from site.config.json on every build, so it can
+    never go stale the way a hand-built internal nav can. It links to every
+    other configured dashboard (auto-labelled from each slug), highlights
+    whichever page you're currently on, and tucks Contact/Feedback/Disclaimer
+    at the end. Dashboards keep whatever internal nav they already have in
+    their own exported HTML (untouched, further down the page) â€” this bar
+    simply sits above it as the authoritative, always-correct way to get
+    around the site.
     """
     name = html.escape(site_name)
+    email = contact_email.strip()
+
+    tabs = []
+    for d in all_dashboards:
+        if not d.get("ok"):
+            continue
+        label = html.escape(humanize_slug(d["slug"]))
+        cls = "ergonav__tab active" if d["slug"] == current_slug else "ergonav__tab"
+        tabs.append(f'<a class="{cls}" href="{d["slug"]}.html">{label}</a>')
+    tabs_html = "".join(tabs)
+
+    contact_links = ""
+    if email:
+        from urllib.parse import quote
+        subject = quote(f"Feedback on {site_name} dashboard")
+        contact_links = (
+            f'<a href="mailto:{html.escape(email)}">Contact</a>'
+            f'<a href="mailto:{html.escape(email)}?subject={subject}">Feedback</a>'
+        )
+
     bar = f"""<style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;500&display=swap');
-.nemnav {{
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+.ergonav {{
   position: sticky; top: 0; z-index: 99999;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; padding: 12px 20px;
-  background: #FAFAF7; border-bottom: 1px solid #E4E4DC;
-  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  display: flex; align-items: center;
+  gap: 18px; padding: 10px 18px;
+  background: #0d1015; border-bottom: 1px solid #232a35;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
 }}
-.nemnav a {{ color: #6B7280; text-decoration: none; transition: color .15s ease; }}
-.nemnav a:hover {{ color: #E8743B; }}
-.nemnav__home {{ font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: #14181B; }}
+.ergonav__home {{ color: #e8ecf1; font-weight: 500; text-decoration: none; flex-shrink: 0; }}
+.ergonav__home:hover {{ color: #2dd4bf; }}
+.ergonav__tabs {{
+  display: flex; gap: 16px; flex: 1; min-width: 0;
+  overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+}}
+.ergonav__tab {{ color: #6f7887; text-decoration: none; padding-bottom: 2px; border-bottom: 2px solid transparent; transition: color .15s ease; }}
+.ergonav__tab:hover {{ color: #2dd4bf; }}
+.ergonav__tab.active {{ color: #e8ecf1; border-bottom-color: #2dd4bf; }}
+.ergonav__links {{ display: flex; gap: 16px; flex-shrink: 0; }}
+.ergonav__links a {{ color: #6f7887; text-decoration: none; transition: color .15s ease; }}
+.ergonav__links a:hover {{ color: #2dd4bf; }}
 </style>
-<nav class="nemnav">
-  <a href="../index.html">&larr; Back to dashboards</a>
-  <span class="nemnav__home">{name}</span>
+<nav class="ergonav">
+  <a class="ergonav__home" href="../index.html">&larr; {name}</a>
+  <div class="ergonav__tabs">{tabs_html}</div>
+  <div class="ergonav__links">
+    {contact_links}<a href="../disclaimer.html">Disclaimer</a>
+  </div>
 </nav>
 """
     try:
@@ -86,28 +116,18 @@ def inject_back_nav(out_path: Path, site_name: str) -> None:
         idx = lower.find("<body")
         if idx != -1:
             close = text.find(">", idx)
-            if close != -1:
-                text = text[: close + 1] + "\n" + bar + text[close + 1 :]
-            else:
-                text = bar + text
+            text = text[: close + 1] + "\n" + bar + text[close + 1 :] if close != -1 else bar + text
         else:
             text = bar + text
         out_path.write_text(text, encoding="utf-8")
-    except Exception:  # noqa: BLE001 - cosmetic; never fail the build over it
-        print(f"  [warn] could not add back-nav to {out_path.name}")
+    except Exception:
+        print(f"  [warn] could not add utility bar to {out_path.name}")
 
 
-def build_dashboard(dash: dict, site_name: str) -> dict:
-    """Produce one dashboard's HTML in dist/dashboards/<slug>.html.
-
-    Returns the dashboard dict annotated with build status so the landing
-    page can show which ones succeeded. A failing generator never breaks the
-    whole build â€” the site still deploys, with that card marked unavailable.
-    """
+def build_dashboard(dash: dict) -> dict:
     slug = dash["slug"]
     out_path = DIST / "dashboards" / f"{slug}.html"
-    dash = dict(dash)  # copy so we can annotate
-
+    dash = dict(dash)
     try:
         if dash["type"] == "generated":
             module = importlib.import_module(dash["generator"])
@@ -119,18 +139,14 @@ def build_dashboard(dash: dict, site_name: str) -> dict:
             shutil.copyfile(src, out_path)
         else:
             raise ValueError(f"unknown dashboard type: {dash['type']!r}")
-
         if not out_path.exists():
             raise RuntimeError("generator ran but produced no output file")
-
-        inject_back_nav(out_path, site_name)
         dash["ok"] = True
         print(f"  [ok]   {slug}  ->  dashboards/{slug}.html")
-    except Exception:  # noqa: BLE001 - we deliberately keep building
+    except Exception:
         dash["ok"] = False
         print(f"  [FAIL] {slug}")
         traceback.print_exc()
-
     return dash
 
 
@@ -143,10 +159,8 @@ def render_cards(dashboards: list[dict]) -> str:
         cadence = d.get("cadence", "static")
         ok = d.get("ok", False)
         href = f"dashboards/{d['slug']}.html"
-
         badge_label = {"daily": "Updated daily", "static": "Static"}.get(cadence, cadence)
         badge_class = "badge--live" if cadence == "daily" else "badge--static"
-
         if ok:
             card = f"""        <a class="card" href="{href}">
           <span class="card__tag">{tag}</span>
@@ -165,41 +179,90 @@ def render_cards(dashboards: list[dict]) -> str:
     return "\n".join(cards)
 
 
-def render_index(config: dict, dashboards: list[dict]) -> None:
+def site_level_replacements(config: dict) -> dict:
+    """Replacements shared by every page: brand, footer, contact column."""
     site = config["site"]
     now = _dt.datetime.now(BRISBANE)
     stamp = now.strftime("%d %b %Y, %H:%M") + " AEST"
 
-    with open(TEMPLATE, encoding="utf-8") as fh:
-        tmpl = fh.read()
+    contact_email = site.get("contact_email", "").strip()
+    if contact_email:
+        contact_column = (
+            '      <div class="foot__col">\n'
+            "        <h4>Contact</h4>\n"
+            f'        <a href="mailto:{html.escape(contact_email)}">{html.escape(contact_email)}</a>\n'
+            "      </div>"
+        )
+        foot_grid_class = ""
+    else:
+        contact_column = ""
+        foot_grid_class = " foot__inner--2col"
 
-    replacements = {
+    return {
         "{{SITE_NAME}}": html.escape(site["name"]),
-        "{{TAGLINE}}": html.escape(site["tagline"]),
-        "{{INTRO}}": html.escape(site["intro"]),
         "{{AUTHOR}}": html.escape(site["author"]),
         "{{FOOTER_NOTE}}": html.escape(site["footer_note"]),
         "{{BUILD_DATE}}": stamp,
         "{{YEAR}}": str(now.year),
+        "{{CONTACT_COLUMN_HTML}}": contact_column,
+        "{{FOOT_GRID_CLASS}}": foot_grid_class,
+    }
+
+
+def render_index(config: dict, dashboards: list[dict]) -> None:
+    site = config["site"]
+
+    with open(TEMPLATE, encoding="utf-8") as fh:
+        tmpl = fh.read()
+
+    replacements = site_level_replacements(config)
+    replacements.update({
+        "{{TAGLINE}}": html.escape(site["tagline"]),
+        "{{INTRO}}": html.escape(site["intro"]),
         "{{DASHBOARD_CARDS}}": render_cards(dashboards),
         "{{DASHBOARD_COUNT}}": str(sum(1 for d in dashboards if d.get("ok"))),
-    }
+    })
     for key, val in replacements.items():
         tmpl = tmpl.replace(key, val)
 
     (DIST / "index.html").write_text(tmpl, encoding="utf-8")
-    print(f"  [ok]   index.html  ({stamp})")
+    print(f"  [ok]   index.html  ({replacements['{{BUILD_DATE}}']})")
+
+
+def render_legal_page(config: dict, out_name: str, page_title: str, content_file: str) -> None:
+    """Render a simple content page (e.g. disclaimer.html) using the shared
+    nav/footer shell. Body copy lives in its own editable HTML fragment under
+    templates/, so wording can be updated without touching this script."""
+    shell_path = ROOT / "templates" / "legal.template.html"
+    content_path = ROOT / "templates" / content_file
+    if not shell_path.exists() or not content_path.exists():
+        print(f"  [warn] skipping {out_name}: template or content file missing")
+        return
+
+    tmpl = shell_path.read_text(encoding="utf-8")
+    body = content_path.read_text(encoding="utf-8")
+
+    replacements = site_level_replacements(config)
+    # The content fragment may itself reference {{SITE_NAME}}, so resolve it first.
+    for key, val in replacements.items():
+        body = body.replace(key, val)
+
+    replacements.update({
+        "{{PAGE_TITLE}}": html.escape(page_title),
+        "{{BODY_CONTENT}}": body,
+    })
+    for key, val in replacements.items():
+        tmpl = tmpl.replace(key, val)
+
+    (DIST / out_name).write_text(tmpl, encoding="utf-8")
+    print(f"  [ok]   {out_name}")
 
 
 def write_custom_domain(config: dict) -> None:
-    """If a custom domain is set in config, emit a CNAME file so GitHub Pages
-    serves the site there. Leave custom_domain empty until your .com.au is
-    registered â€” then just fill it in and the next build wires it up."""
     domain = config["site"].get("custom_domain", "").strip()
     if domain:
         (DIST / "CNAME").write_text(domain + "\n", encoding="utf-8")
         print(f"  [ok]   CNAME -> {domain}")
-    # .nojekyll: stop GitHub Pages' Jekyll from touching our files
     (DIST / ".nojekyll").touch()
 
 
@@ -208,18 +271,24 @@ def main() -> int:
     config = load_config()
     clean_dist()
     copy_assets()
-
     site_name = config["site"]["name"]
-    built = [build_dashboard(d, site_name) for d in config["dashboards"]]
-    render_index(config, built)
-    write_custom_domain(config)
+    contact_email = config["site"].get("contact_email", "").strip()
 
+    built = [build_dashboard(d) for d in config["dashboards"]]
+
+    # Second pass: now that we know which dashboards actually built, inject a
+    # nav bar into each successful one linking to every other dashboard.
+    for dash in built:
+        if dash.get("ok"):
+            out_path = DIST / "dashboards" / f"{dash['slug']}.html"
+            inject_dashboard_utility_bar(out_path, site_name, contact_email, built, dash["slug"])
+
+    render_index(config, built)
+    render_legal_page(config, "disclaimer.html", "Disclaimer", "disclaimer_content.html")
+    write_custom_domain(config)
     n_ok = sum(1 for d in built if d.get("ok"))
     n_total = len(built)
     print(f"Done. {n_ok}/{n_total} dashboards built. Output in ./dist")
-
-    # Don't fail the deploy just because one dashboard broke; the site should
-    # still go live. Only hard-fail if literally nothing built.
     return 0 if (n_ok > 0 or n_total == 0) else 1
 
 
