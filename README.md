@@ -1,114 +1,127 @@
-# NEM Analytics site
+# Ergodic Analytics site
 
-A static website that hosts public-data NEM dashboards and **rebuilds itself
-every day** from AEMO NEMweb, deploying automatically to GitHub Pages. No
-server to run, no manual uploads.
+A static website of public-data NEM dashboards that **rebuilds itself every
+day** from AEMO NEMweb, deploying automatically to GitHub Pages at
+[ergodicanalytics.com.au](https://ergodicanalytics.com.au). No server to run,
+no manual uploads.
 
-The site name and the custom domain are deliberately swappable — pick them
-whenever you like and change one config value each.
+> Looking for the plain-language "how do I update the site" guide instead?
+> See `MAINTENANCE.md` and `ADD_DASHBOARD.md`. This file is the technical
+> reference for how the build system works.
 
 ---
 
 ## How it works
 
 ```
-site.config.json          <- site name, tagline, and the list of dashboards
-build.py                  <- assembles everything into dist/
-templates/index.template.html  <- landing page (filled in by build.py)
-assets/style.css          <- landing page styles
+site.config.json                     <- site name, tagline, and the list of dashboards
+build.py                             <- assembles everything into dist/
+templates/index.template.html        <- landing page (filled in by build.py)
+templates/legal.template.html        <- shell for content pages (disclaimer, etc.)
+templates/disclaimer_content.html    <- the disclaimer's actual wording (editable)
+assets/style.css                     <- site-wide styles (dark theme)
+assets/favicon.svg                   <- browser tab icon
 dashboards/
-  generators/             <- Python scripts that PRODUCE a dashboard each run
-    spike_price.py        <- example (synthetic data; replace with NEMweb)
-  static/                 <- standalone HTML files COPIED in as-is
-    negative_price_demo.html
-.github/workflows/daily-build.yml  <- the daily build + deploy
+  static/                            <- your exported dashboard HTML files
+    index.html, bess.html, wind.html, solar.html, market-shift.html,
+    curtailment.html, optimizer.html
+.github/workflows/daily-build.yml    <- the daily scheduled build + deploy
 ```
 
-`build.py` reads `site.config.json`, builds each dashboard, renders the landing
-page, and writes the finished site to `dist/`. The GitHub Action runs that same
-command on a schedule and publishes `dist/` to Pages.
+`build.py` reads `site.config.json`, copies/builds each dashboard, injects a
+navigation bar into each one, renders the landing page and disclaimer page,
+and writes the finished site to `dist/`. The GitHub Action runs that same
+command daily and publishes `dist/` to Pages.
 
 ## Run it locally
 
 ```bash
 pip install -r requirements.txt
 python build.py
-# open dist/index.html in a browser
+cd dist
+python -m http.server 8000
+# open http://localhost:8000
 ```
 
-## Two kinds of dashboard
+## The dashboards
 
-Register each dashboard in `site.config.json`. There are two types:
-
-**`generated`** — a Python script that's re-run every build. It must expose:
-
-```python
-def build(out_path: str) -> None:
-    # ... your analysis ...
-    fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
-```
-
-Porting one of your existing scripts is usually three changes: wrap the body in
-`def build(out_path):`, point your final `write_html` at `out_path`, and add an
-entry to the config. See `dashboards/generators/spike_price.py`.
-
-**`static`** — a finished HTML file (e.g. a Plotly export) that's just copied
-in. Drop it in `dashboards/static/` and point the config at it.
-
-Example config entries:
+All current dashboards are `type: "static"` — finished HTML files you export
+yourself and drop into `dashboards/static/`, registered in `site.config.json`:
 
 ```json
-{ "slug": "spike-price", "title": "Spike Price Analysis",
-  "type": "generated", "generator": "dashboards.generators.spike_price",
-  "cadence": "daily" }
-
-{ "slug": "negative-price", "title": "Negative Price Analysis",
-  "type": "static", "source": "dashboards/static/negative_price_demo.html",
-  "cadence": "static" }
+{ "slug": "bess", "title": "BESS Performance in NEM",
+  "blurb": "Dispatch behaviour and performance profile of grid-scale batteries.",
+  "tag": "NEM BESS fleet", "type": "static",
+  "source": "dashboards/static/bess.html", "cadence": "static" }
 ```
 
-If a generator fails, the build doesn't crash — the site still deploys and that
-one card shows "Rebuilding". So a bad NEMweb day never takes the whole site down.
+**Critical rule: `slug` must exactly match the source filename (without
+`.html`).** For example `bess.html` → slug `"bess"`, `market-shift.html` →
+slug `"market-shift"`. This isn't cosmetic — each dashboard's own internal
+cross-links (the Overview/Market Shift/BESS/... tabs your dashboards already
+have baked in) point to sibling files by their original names. If the slug
+doesn't match, `build.py` renames the file on copy and those internal links
+404. Keeping slug = filename stem keeps everything wired together correctly.
 
-## Going live (first time)
+A `type: "generated"` option also exists for dashboards built by a Python
+script at build time (see `dashboards/generators/` for the pattern: a module
+exposing `build(out_path)`), useful later if you want a dashboard that pulls
+fresh NEMweb data on every scheduled run rather than being a static export.
 
-1. Create a **public** GitHub repo and push these files to `main`.
-2. Repo **Settings -> Pages -> Build and deployment -> Source: GitHub Actions**.
-3. The workflow runs on push; within a couple of minutes the site is live at
-   `https://<your-username>.github.io/<repo-name>/`.
-4. You can also trigger it any time from the **Actions** tab ("Run workflow").
+If a dashboard fails to build, the whole site still deploys — that one card
+just shows "Rebuilding" on the homepage instead of crashing everything.
+
+## Navigation bar on every dashboard
+
+`build.py` injects a slim dark bar at the top of every dashboard page,
+generated fresh from `site.config.json` on every build:
+
+- **← Ergodic Analytics** — back to the homepage
+- **Tabs for every configured dashboard** (auto-labelled from each slug, e.g.
+  `market-shift` → "Market Shift"), with the current page highlighted
+- **Contact** / **Feedback** (mailto links — only shown if `contact_email` is
+  set in config) and **Disclaimer**
+
+This bar is intentionally the *authoritative* source of navigation — it can
+never go stale, because it's regenerated from config every time, unlike a
+hand-built internal nav that has to be manually kept in sync.
+
+## The disclaimer page
+
+`build.py` also renders `disclaimer.html` using `templates/legal.template.html`
+(the shared nav/footer shell) plus `templates/disclaimer_content.html` (the
+actual wording). Edit the wording file directly — no Python required — and it
+picks up `{{SITE_NAME}}` automatically if referenced.
+
+## Site-wide config (`site.config.json`)
+
+| Key | Purpose |
+|---|---|
+| `name` | Site name, shown in nav/footer/page titles |
+| `tagline`, `intro` | Homepage hero copy |
+| `author` | Shown in the footer credit line |
+| `footer_note` | Small print in the footer |
+| `custom_domain` | If set, `build.py` writes a `CNAME` file for GitHub Pages |
+| `contact_email` | If set, enables Contact/Feedback links site-wide |
+
+## Theme
+
+The whole site (homepage, disclaimer page, and the injected dashboard nav bar)
+shares one dark palette, defined as CSS variables at the top of
+`assets/style.css` (`--paper`, `--panel`, `--ink`, `--accent`, etc.). The
+injected dashboard bar can't read that stylesheet (dashboards are standalone
+files), so its colors are hardcoded to match — if you ever change the palette
+in `style.css`, update the matching hex values in
+`inject_dashboard_utility_bar()` in `build.py` too.
+
+## Going live / updating
+
+See `MAINTENANCE.md` for the day-to-day workflow (edit → build → preview →
+commit → push) and `ADD_DASHBOARD.md` for the quick add-a-dashboard steps.
 
 ## The corporate-proxy note
 
-The daily build runs on GitHub's runners, **not your work machine**, so there's
-no Zscaler SSL inspection in the way — your NEMweb fetches hit AEMO directly. If
-your fetch code sets proxies or certs for the CS Energy network, guard that
-behind an environment check so the same code works in both places:
-
-```python
-import os
-if os.getenv("CI") != "true":      # only on the work machine, not in Actions
-    session.proxies = {...}
-    session.verify = "/path/to/zscaler-root.crt"
-```
-
-GitHub Actions sets `CI=true` automatically.
-
-## Adding your .com.au domain later
-
-When your domain is registered, set it in `site.config.json`:
-
-```json
-"custom_domain": "yourdomain.com.au"
-```
-
-The next build emits a `CNAME` file automatically. Then at your domain
-registrar, point the DNS at GitHub Pages (a `CNAME`/`ALIAS` record to
-`<your-username>.github.io`, or the four Pages `A` records for an apex domain —
-GitHub's Pages docs list the current IPs). Nothing else changes; the same site
-just answers on the new address. Leave `custom_domain` empty until then.
-
-## Renaming the site
-
-Change `site.name` (and tagline/intro) in `site.config.json`. That's the only
-place the name lives.
+The daily build runs on GitHub's own runners, not your work machine, so there's
+no Zscaler SSL inspection involved — any NEMweb fetch code in a `generated`
+dashboard hits AEMO directly. GitHub Actions sets `CI=true` automatically if
+you ever need to branch on that.
