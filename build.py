@@ -285,6 +285,7 @@ def main() -> int:
 
     render_index(config, built)
     render_legal_page(config, "disclaimer.html", "Disclaimer", "disclaimer_content.html")
+    render_legal_page(config, "about.html", "About", "about_content.html")
     write_custom_domain(config)
     n_ok = sum(1 for d in built if d.get("ok"))
     n_total = len(built)

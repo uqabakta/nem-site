@@ -3,7 +3,8 @@
     "name": "Ergodic Analytics",
     "tagline": "Open analysis of Australia's National Electricity Market",
     "intro": "Public-data dashboards on spot prices, price spikes, negative pricing, battery performance and weather-driven demand across the NEM. Rebuilt daily from AEMO NEMweb.",
-    "author": "Ardeshir Baktash",
+    "author": "Ergodic Analytics",
+"contact_email": "contact@ergodicanalytics.com.au",
     "footer_note": "Built on public AEMO NEMweb data. Not affiliated with AEMO or any market participant.",
     "custom_domain": "ergodicanalytics.com.au"
   },
