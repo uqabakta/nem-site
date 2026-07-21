@@ -20,6 +20,14 @@ TEMPLATE = ROOT / "templates" / "index.template.html"
 ASSETS = ROOT / "assets"
 BRISBANE = ZoneInfo("Australia/Brisbane")
 
+# Cloudflare Web Analytics beacon — injected into every page
+CF_ANALYTICS = (
+    '<!-- Cloudflare Web Analytics -->'
+    '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+    'data-cf-beacon=\'{"token": "2c2a3ff0e7234e12a6f6a5cc9baf3486"}\'></script>'
+    '<!-- End Cloudflare Web Analytics -->'
+)
+
 
 def load_config() -> dict:
     with open(CONFIG, encoding="utf-8") as fh:
@@ -116,9 +124,9 @@ def inject_dashboard_utility_bar(
         idx = lower.find("<body")
         if idx != -1:
             close = text.find(">", idx)
-            text = text[: close + 1] + "\n" + bar + text[close + 1 :] if close != -1 else bar + text
+            text = text[: close + 1] + "\n" + CF_ANALYTICS + bar + text[close + 1 :] if close != -1 else CF_ANALYTICS + bar + text
         else:
-            text = bar + text
+            text = CF_ANALYTICS + bar + text
         out_path.write_text(text, encoding="utf-8")
     except Exception:
         print(f"  [warn] could not add utility bar to {out_path.name}")
@@ -199,6 +207,7 @@ def site_level_replacements(config: dict) -> dict:
         foot_grid_class = " foot__inner--2col"
 
     return {
+        "{{CF_ANALYTICS}}": CF_ANALYTICS,
         "{{SITE_NAME}}": html.escape(site["name"]),
         "{{AUTHOR}}": html.escape(site["author"]),
         "{{FOOTER_NOTE}}": html.escape(site["footer_note"]),
