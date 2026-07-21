@@ -20,6 +20,14 @@ TEMPLATE = ROOT / "templates" / "index.template.html"
 ASSETS = ROOT / "assets"
 BRISBANE = ZoneInfo("Australia/Brisbane")
 
+# Cloudflare Web Analytics beacon — injected into every page
+CF_ANALYTICS = (
+    '<!-- Cloudflare Web Analytics -->'
+    '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+    'data-cf-beacon=\'{"token": "2c2a3ff0e7234e12a6f6a5cc9baf3486"}\'></script>'
+    '<!-- End Cloudflare Web Analytics -->'
+)
+
 
 def load_config() -> dict:
     with open(CONFIG, encoding="utf-8") as fh:
@@ -116,9 +124,9 @@ def inject_dashboard_utility_bar(
         idx = lower.find("<body")
         if idx != -1:
             close = text.find(">", idx)
-            text = text[: close + 1] + "\n" + bar + text[close + 1 :] if close != -1 else bar + text
+            text = text[: close + 1] + "\n" + CF_ANALYTICS + bar + text[close + 1 :] if close != -1 else CF_ANALYTICS + bar + text
         else:
-            text = bar + text
+            text = CF_ANALYTICS + bar + text
         out_path.write_text(text, encoding="utf-8")
     except Exception:
         print(f"  [warn] could not add utility bar to {out_path.name}")
@@ -199,6 +207,7 @@ def site_level_replacements(config: dict) -> dict:
         foot_grid_class = " foot__inner--2col"
 
     return {
+        "{{CF_ANALYTICS}}": CF_ANALYTICS,
         "{{SITE_NAME}}": html.escape(site["name"]),
         "{{AUTHOR}}": html.escape(site["author"]),
         "{{FOOTER_NOTE}}": html.escape(site["footer_note"]),
@@ -265,6 +274,32 @@ def write_custom_domain(config: dict) -> None:
         print(f"  [ok]   CNAME -> {domain}")
     (DIST / ".nojekyll").touch()
 
+def write_sitemap(config: dict, dashboards: list[dict]) -> None:
+    domain = config["site"].get("custom_domain", "").strip()
+    if not domain:
+        return
+    base = f"https://{domain}"
+    urls = [
+        (f"{base}/", "daily", "1.0"),
+        (f"{base}/about.html", "monthly", "0.5"),
+        (f"{base}/disclaimer.html", "monthly", "0.3"),
+    ]
+    for d in dashboards:
+        if d.get("ok"):
+            urls.append((f"{base}/dashboards/{d['slug']}.html", "daily", "0.8"))
+
+    entries = "\n".join(
+        f"  <url>\n    <loc>{loc}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>"
+        for loc, freq, prio in urls
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{entries}\n"
+        "</urlset>\n"
+    )
+    (DIST / "sitemap.xml").write_text(xml, encoding="utf-8")
+    print(f"  [ok]   sitemap.xml  ({len(urls)} URLs)")
 
 def main() -> int:
     print("Building site ...")
@@ -287,6 +322,7 @@ def main() -> int:
     render_legal_page(config, "disclaimer.html", "Disclaimer", "disclaimer_content.html")
     render_legal_page(config, "about.html", "About", "about_content.html")
     write_custom_domain(config)
+    write_sitemap(config, built)
     n_ok = sum(1 for d in built if d.get("ok"))
     n_total = len(built)
     print(f"Done. {n_ok}/{n_total} dashboards built. Output in ./dist")
