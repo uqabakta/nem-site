@@ -274,6 +274,32 @@ def write_custom_domain(config: dict) -> None:
         print(f"  [ok]   CNAME -> {domain}")
     (DIST / ".nojekyll").touch()
 
+def write_sitemap(config: dict, dashboards: list[dict]) -> None:
+    domain = config["site"].get("custom_domain", "").strip()
+    if not domain:
+        return
+    base = f"https://{domain}"
+    urls = [
+        (f"{base}/", "daily", "1.0"),
+        (f"{base}/about.html", "monthly", "0.5"),
+        (f"{base}/disclaimer.html", "monthly", "0.3"),
+    ]
+    for d in dashboards:
+        if d.get("ok"):
+            urls.append((f"{base}/dashboards/{d['slug']}.html", "daily", "0.8"))
+
+    entries = "\n".join(
+        f"  <url>\n    <loc>{loc}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>"
+        for loc, freq, prio in urls
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{entries}\n"
+        "</urlset>\n"
+    )
+    (DIST / "sitemap.xml").write_text(xml, encoding="utf-8")
+    print(f"  [ok]   sitemap.xml  ({len(urls)} URLs)")
 
 def main() -> int:
     print("Building site ...")
@@ -296,6 +322,7 @@ def main() -> int:
     render_legal_page(config, "disclaimer.html", "Disclaimer", "disclaimer_content.html")
     render_legal_page(config, "about.html", "About", "about_content.html")
     write_custom_domain(config)
+    write_sitemap(config, built)
     n_ok = sum(1 for d in built if d.get("ok"))
     n_total = len(built)
     print(f"Done. {n_ok}/{n_total} dashboards built. Output in ./dist")
