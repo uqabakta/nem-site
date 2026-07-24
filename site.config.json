@@ -16,7 +16,8 @@
     { "slug": "optimizer", "title": "Dispatch Optimizer", "blurb": "Optimal charge/discharge scheduling for grid-scale batteries against forecast NEM prices.", "tag": "NEM BESS fleet", "type": "static", "source": "dashboards/static/optimizer.html", "cadence": "static" },
     { "slug": "wind", "title": "Wind Performance in NEM", "blurb": "Dispatch behaviour and performance profile of grid-scale wind farms across the NEM.", "tag": "NEM Wind fleet", "type": "static", "source": "dashboards/static/wind.html", "cadence": "static" },
     { "slug": "solar", "title": "Solar Performance in NEM", "blurb": "Dispatch behaviour and performance profile of grid-scale solar farms across the NEM.", "tag": "NEM Solar fleet", "type": "static", "source": "dashboards/static/solar.html", "cadence": "static" },
-    { "slug": "curtailment", "title": "NEM VRE Curtailment", "blurb": "Wind & solar economic curtailment.", "tag": "NEM VRE Curtailment", "type": "static", "source": "dashboards/static/curtailment.html", "cadence": "static" },
+    { "slug": "curtailment", "title": "NEM VRE Curtailment", "blurb": "Wind and solar energy that was available but not generated, measured against AEMO's own per-farm forecast.", "tag": "NEM VRE Curtailment", "type": "static", "source": "dashboards/static/curtailment.html", "cadence": "daily" },
+    { "slug": "negative-prices", "title": "Negative Price Outlook", "blurb": "Forecast negative-price windows for the trading day ahead, with indicative exposure for a typical farm.", "tag": "NEM Price Risk", "type": "static", "source": "dashboards/static/negative-prices.html", "cadence": "daily" },
     { "slug": "phes", "title": "Pumped Hydro Economics", "blurb": "Pump-vs-generate dispatch economics for NEM pumped-hydro assets.", "tag": "NEM Pumped Hydro", "type": "static", "source": "dashboards/static/phes.html", "cadence": "static" }
   ]
 }

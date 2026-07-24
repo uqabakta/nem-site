@@ -167,8 +167,10 @@ def render_cards(dashboards: list[dict]) -> str:
         cadence = d.get("cadence", "static")
         ok = d.get("ok", False)
         href = f"dashboards/{d['slug']}.html"
-        badge_label = {"daily": "Updated daily", "static": "Static"}.get(cadence, cadence)
-        badge_class = "badge--live" if cadence == "daily" else "badge--static"
+        badge_label = {"daily": "Updated daily", "6h": "Updated every 6 hours",
+                       "hourly": "Updated hourly", "static": "Static"}.get(cadence, cadence)
+        badge_class = ("badge--live" if cadence in {"daily", "6h", "hourly"}
+                       else "badge--static")
         if ok:
             card = f"""        <a class="card" href="{href}">
           <span class="card__tag">{tag}</span>
