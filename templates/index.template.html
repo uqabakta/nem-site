@@ -31,6 +31,7 @@
         <a href="#dashboards">Dashboards</a>
         <a href="#approach">Approach</a>
         <a href="about.html">About</a>
+        <a href="disclaimer.html">Disclaimer</a>
         <a href="#contact">Contact</a>
       </div>
       <div class="nav__meta">
@@ -42,7 +43,7 @@
   <main>
     <header class="hero">
       <div class="hero__lead">
-        <p class="eyebrow">Australian National Electricity Market</p>
+        <p class="eyebrow">Australian electricity &amp; gas markets</p>
         <h1>{{TAGLINE}}</h1>
         <p class="hero__intro">{{INTRO}}</p>
         <div class="hero__cta">
@@ -63,7 +64,7 @@
         </svg>
         <figcaption>
           <span class="trace__label">RRP $/MWh &middot; 5-min dispatch</span>
-          <span class="trace__cap">spike &rarr; price cap $16,600</span>
+          <span class="trace__cap">spike &rarr; market price cap</span>
         </figcaption>
       </figure>
     </header>
@@ -95,8 +96,8 @@
           <span class="principle__icon" aria-hidden="true">
             <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="2.4" fill="currentColor"/><ellipse cx="16" cy="16" rx="13" ry="5.2" stroke="currentColor" stroke-width="2"/><ellipse cx="16" cy="16" rx="13" ry="5.2" stroke="currentColor" stroke-width="2" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="13" ry="5.2" stroke="currentColor" stroke-width="2" transform="rotate(120 16 16)"/></svg>
           </span>
-          <h3>Built on the stochastic side</h3>
-          <p>Written by a quantitative analyst with a background in computational physics. Models here are built to be honest about uncertainty, not just point estimates.</p>
+          <h3>Assumptions on the page</h3>
+          <p>Every dashboard states its method, its exclusions, and the cases where a number shouldn&rsquo;t be read at all &mdash; benchmarks and best-case look-backs are labelled as such, not dressed up as forecasts.</p>
         </article>
 
       </div>
@@ -131,7 +132,7 @@
 {{CONTACT_COLUMN_HTML}}
     </div>
     <div class="foot__bar">
-      <p>{{AUTHOR}} &middot; &copy; {{YEAR}} &middot; rebuilt continuously from NEMweb</p>
+      <p>{{AUTHOR}} &middot; &copy; {{YEAR}} &middot; rebuilt automatically from AEMO public data</p>
     </div>
   </footer>
 
