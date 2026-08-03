@@ -1,37 +1,54 @@
 <h1>About</h1>
 
 <p>{{SITE_NAME}} is an independent research practice publishing public-data
-analysis of Australia's National Electricity Market. Every dashboard on this
-site is built from AEMO's publicly available NEMweb data, rebuilt
-automatically each day, and designed to be transparent about what it does and
-doesn't know.</p>
+analysis of Australia's electricity and gas markets. Every dashboard on this
+site is built from data AEMO publishes openly &mdash; NEMweb for electricity,
+the Gas Bulletin Board for gas &mdash; and is designed to be explicit about
+what it does and doesn't know.</p>
 
 <h2>The name</h2>
 <p>An ergodic system is one where a single long-run trajectory reveals the
-same statistics as averaging across many possible trajectories &mdash; the
-assumption quietly underpinning Monte Carlo simulation, and one that becomes
-interestingly fragile in a market shaped by price spikes, structural breaks,
-and the rapid entry of storage and renewables. It felt like the right name for
-a practice built on taking that assumption seriously, rather than for
-granted.</p>
+same statistics as averaging across many possible trajectories &mdash; an
+assumption that sits quietly beneath a great deal of quantitative market
+modelling, and one that becomes interestingly fragile in a market shaped by
+price spikes, structural breaks, and the rapid entry of storage and
+renewables. It felt like the right name for a practice built on taking that
+assumption seriously, rather than for granted.</p>
 
-<h2>Background</h2>
-<p>The analysis published here is produced by a quantitative analyst with two
-PhDs in computational physics and close to a decade of experience in
-stochastic simulation, probabilistic forecasting, and energy market analytics
-in the Australian National Electricity Market. The methods used across these
-dashboards &mdash; Monte Carlo price simulation, spike and negative-price
-probability modelling, capture-rate and value-factor analysis for wind, solar
-and storage &mdash; are the same class of techniques used professionally in
-market risk and generation asset analysis, applied here entirely to public
-data.</p>
+<h2>Approach</h2>
+<p>The work published here comes out of a quantitative modelling background
+applied to electricity and gas markets. The methods across these dashboards
+are deliberately transparent ones: linear-programming dispatch optimisation
+for storage, value-factor and capture-rate analysis for wind and solar,
+empirical frequency analysis of price spikes and negative pricing, and
+counterfactual look-backs that ask what a different operating decision would
+have earned. Where a forward view is shown, it is built on AEMO's own
+published price forecasts rather than an in-house price model.</p>
+
+<p>Two things follow from that choice. Results are reproducible &mdash;
+anyone with the same public files and the stated method should be able to
+arrive at the same numbers. And the limits are visible: each dashboard states
+its assumptions, its exclusions, and the cases where a figure should not be
+read at all.</p>
+
+<p>Methodology notes sit alongside every dashboard, so the analysis can be
+judged on the method and the data rather than on any claim about who produced
+it.</p>
+
+<h2>What this is not</h2>
+<p>These dashboards are monitoring and analysis, not prediction and not
+advice. Modelled results &mdash; optimal battery schedules, curtailment
+scorecards, forgone-revenue figures &mdash; are benchmark or best-case
+constructions under stated assumptions, generally computed with hindsight or
+perfect foresight, and are not achievable trading outcomes. See the
+<a href="disclaimer.html">disclaimer</a> for the full position.</p>
 
 <h2>Data and independence</h2>
-<p>All dashboards are built exclusively from AEMO's public NEMweb data.
+<p>All dashboards are built exclusively from AEMO's public data.
 {{SITE_NAME}} is independent and unofficial &mdash; it has no affiliation with
-AEMO, any generator, retailer, or other market participant, and no
+AEMO, the AEMC, any generator, retailer, or other market participant, and no
 proprietary or confidential data of any kind is used anywhere on this site.
-See the <a href="disclaimer.html">disclaimer</a> for further detail.</p>
+Figures published here are derived calculations, not official market data.</p>
 
 <h2>Get in touch</h2>
 <p>Questions about a dashboard's methodology, a correction, or an interest in
