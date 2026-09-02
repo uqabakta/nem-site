@@ -63,7 +63,7 @@ def inject_dashboard_utility_bar(
     other configured dashboard (auto-labelled from each slug), highlights
     whichever page you're currently on, and tucks Contact/Feedback/Disclaimer
     at the end. Dashboards keep whatever internal nav they already have in
-    their own exported HTML (untouched, further down the page) â€” this bar
+    their own exported HTML (untouched, further down the page) — this bar
     simply sits above it as the authoritative, always-correct way to get
     around the site.
     """
@@ -88,8 +88,8 @@ def inject_dashboard_utility_bar(
             f'<a href="mailto:{html.escape(email)}?subject={subject}">Feedback</a>'
         )
 
-    bar = f"""<style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+    bar = f"""<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=optional">
+<style>
 .ergonav {{
   position: sticky; top: 0; z-index: 99999;
   display: flex; align-items: center;
