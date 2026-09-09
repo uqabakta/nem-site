@@ -217,6 +217,10 @@ def site_level_replacements(config: dict) -> dict:
         "{{YEAR}}": str(now.year),
         "{{CONTACT_COLUMN_HTML}}": contact_column,
         "{{FOOT_GRID_CLASS}}": foot_grid_class,
+        # Set manually in site.config.json — deliberately NOT the build
+        # timestamp, so the legal pages don't claim to have been revised
+        # every time the site rebuilds.
+        "{{LEGAL_UPDATED}}": html.escape(site.get("legal_updated", "")),
     }
 
 
